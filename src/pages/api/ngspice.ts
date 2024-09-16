@@ -48,7 +48,7 @@ export default async function ngspice(
 
   //const { stdout, stderr } = await exec('cd local_assets\\active_ngspice\\Spice64\\bin\\ & ngspice_con.exe --help');
   //const { stdout, stderr } = await exec('cd local_assets\\active_ngspice\\Spice64\\bin\\ & ngspice_con.exe ../../../examples/ngspice/ac/ac_no_plot.spi');
-  const { stdout, stderr } = await exec('cd local_assets\\active_ngspice\\Spice64\\bin\\ & ngspice_con.exe --version');
+  const { stdout, stderr } = await exec('cd local_assets\\ngspice\\ngspice-43_64\\Spice64\\bin\\ & ngspice_con.exe --version');
   //console.log('stdout:', stdout);
   //console.error('stderr:', stderr);
 
