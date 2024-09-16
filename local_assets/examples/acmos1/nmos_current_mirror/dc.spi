@@ -1,0 +1,35 @@
+* nmos_current_mirror
+.include ../../../models/CMOS/180nm/p18_cmos_models_tt.inc
+
+.option TNOM=27 GMIN=1e-15 reltol=1e-5
+
+IREF VSS VREF dc 1u
+VLOAD VL VSS dc 0
+VSS VSS 0 dc 0
+
+M1 VREF VREF VSS VSS nmos w=1e-6 l=4e-6
+M2 VL VREF VSS VSS nmos w=2e-6 l=4e-6
+
+.control
+
+save all @m1[id] @m2[id]
+
+
+set num_threads=8
+set color0=white
+set color1=black
+unset askquit
+
+dc VLOAD 0 3.3 0.1
+
+write
+
+*load rawspice.raw
+
+*plot i(@m1[id]) i(@m2[id])
+*plot VL VREF
+
+quit
+
+.endc
+.end
