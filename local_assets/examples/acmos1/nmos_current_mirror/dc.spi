@@ -29,6 +29,8 @@ write
 *plot i(@m1[id]) i(@m2[id])
 *plot VL VREF
 
+print all
+
 quit
 
 .endc

@@ -21,6 +21,12 @@ export default async function runsim(
   
     // 12.12 Pipe mode option -p
     const { stdout, stderr } = await exec('echo "'.concat(netlist, '" | local_assets\\ngspice\\ngspice-43_64\\Spice64\\bin\\ngspice_con.exe -p'), {'shell':'powershell.exe'}); // , '  | local_assets\\ngspice\\ngspice-43_64\\Spice64\\bin\\ngspice_con.exe -p
+    
+    // TODO: Check out this https://stackoverflow.com/a/61219838
+    // exec('command here', {'shell':'powershell.exe'}, (error, stdout, stderr)=> {
+    //   // do whatever with stdout
+    // })
+    
     // console.log('stderr', stderr)
     // console.log('stdout', stdout)
     // console.log('finish')
