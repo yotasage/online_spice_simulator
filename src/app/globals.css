@@ -31,3 +31,14 @@ body {
     text-wrap: balance;
   }
 }
+
+/* .electron {
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+} */
+
+@keyframes followpath {
+  to {
+    offset-distance: 100%;
+  }
+}
