@@ -1,65 +1,56 @@
 import React from "react";
 
 import Electrons from '/components/schematic/electrons'
+import Cell from "../cell";
 
-class Vdc extends React.Component {
-    constructor(props) {
-        super(props);
-        this.p1 = {x: 0, y: 0};
-        // this.state = { counter: 0 };
-        // this.handleClick = this.handleClick.bind(this);
+export default class Vdc extends Cell {
+    constructor(name: string, value: number=5, x: number=0, y: number=0, origin: Coordinate=null) {
+        super(name, value, x, y, origin, 2);
+        
+        var symbol_length: number = 20
+
+        this.p1.origin.y = this.p1.origin.y - this.p1.length
+        this.p2.origin.y = this.p2.origin.y + this.p2.length + symbol_length
+
+        this.unit = 'V';
+        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.p1} p2={this.p2}></VdcSymbol>;
+    }
+}
+
+export function VdcSymbol(props) {
+    const translate_group = "translate(" + props.origin.x + "," + props.origin.y + ")";
+    
+    var p1_path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "l0," + props.p1.length;
+    var p2_path = "M" + props.p2.origin.x + "," + props.p2.origin.y + "l0," + -props.p2.length;
+    
+    var p12_vect = {x: props.p2.origin.x - props.p1.origin.x, y: props.p2.origin.y - props.p1.origin.y}
+    var current_path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "  L" + props.p2.origin.x + "," + props.p2.origin.y
+    var current_path_length = Math.sqrt(Math.pow(p12_vect.x, 2) + Math.pow(p12_vect.y, 2))
+
+    var current_rects = []
+    for (var i = 0; i < current_path_length/10; i++) {
+        current_rects.push(<Electrons index={i} start={props.p1.origin} stop={props.p2.origin}></Electrons>)
     }
 
-
-
-    render() {
-        var Omega = '\u03A9';
-
-        var origin_global = {x: this.props.origin.x, y: this.props.origin.y};
-        var origin = {x: 0, y: 0};
-        
-        const translate_group = "translate(".concat(origin_global.x.toString(), ",", origin_global.y.toString(), ")");
-
-        const pin_length = 20
-
-        var p1_coord = {x: origin.x, y: origin.y - pin_length};
-        var p2_coord = {x: origin.x, y: origin.y + pin_length + 20};
-
-        this.p1 = {x: origin_global.x - origin.x, y: origin_global.y - origin.y - pin_length};
-
-        var p1_path = "M".concat(p1_coord.x, ",", p1_coord.y, "l0,", pin_length.toString())
-        var p2_path = "M".concat(p2_coord.x, ",", p2_coord.y, "l0,", -pin_length.toString())
-        
-        var p12_vect = {x: p2_coord.x - p1_coord.x, y: p2_coord.y - p1_coord.y}
-        var current_path = "M".concat(p1_coord.x, ",", p1_coord.y, "  L" , p2_coord.x, ",", p2_coord.y.toString())
-        var current_path_length = Math.sqrt(Math.pow(p12_vect.x, 2) + Math.pow(p12_vect.y, 2))
-
-        var current_rects = []
-        for (var i = 0; i < current_path_length/10; i++) {
-            current_rects.push(<Electrons index={i} start={p1_coord} stop={p2_coord}></Electrons>)
-        }
-
-        return (
-        <g className="electricalComponent vdc" id={this.props.name} transform={translate_group}>
+    return (
+        <g className="electricalComponent vdc" id={props.name} transform={translate_group}>
             <text 
                 x="11" 
                 y="8" 
                 fontSize="8"
-                //textLength='10'
                 fill="#fff"
-                >{this.props.name}</text>
+                >{props.name}</text>
 
             <text 
                 x="11" 
                 y="18" 
                 fontSize="8"
-                //textLength='10'
                 fill="#fff"
-                >{this.props.val} V</text>
+                >{props.val} V</text>
 
             <ellipse
-                cx={p1_coord.x}
-                cy={p1_coord.y}
+                cx={props.p1.origin.x}
+                cy={props.p1.origin.y}
                 fill="#fff"
                 stroke="#fff"
                 pointerEvents="all"
@@ -78,8 +69,8 @@ class Vdc extends React.Component {
             ></ellipse>
 
             <ellipse
-                cx={p2_coord.x}
-                cy={p2_coord.y}
+                cx={props.p2.origin.x}
+                cy={props.p2.origin.y}
                 fill="#fff"
                 stroke="#fff"
                 pointerEvents="all"
@@ -129,7 +120,4 @@ class Vdc extends React.Component {
                 pointerEvents="stroke"
             ></path>
         </g>);
-    }
 }
-
-export default Vdc;

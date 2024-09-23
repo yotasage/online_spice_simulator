@@ -18,6 +18,7 @@ export class Cell {
 
     symbol: React.Component;
 
+    // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
     constructor(name: string, value: number=100, x: number=0, y: number=0, origin: Coordinate=null, numPins: number=2) {
 
         

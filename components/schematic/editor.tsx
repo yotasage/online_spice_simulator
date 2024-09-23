@@ -1,7 +1,7 @@
 import React from "react";
 
 import Resistor from './components/resistor'
-import Vdc from './components/vdc'
+import Vdc from "./components/vdc";
 
 class SchematicEditor extends React.Component {
     constructor(props) {
@@ -15,11 +15,9 @@ class SchematicEditor extends React.Component {
 
     // }
 
-    render() {
-
-        var Omega = '\u03A9';
-        
+    render() {        
         var R1 = new Resistor('R1', 300, 120, 60);//<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
+        var V0 = new Vdc('V0', 5, 50, 60);
         console.log(R1)
 
         return (
@@ -47,8 +45,7 @@ class SchematicEditor extends React.Component {
             <rect width="100%" height="100%" fill="url(#grid)" />
         
             {R1.symbol}
-        
-            <Vdc name={'V0'} val={5} origin={{x: 50, y: 60}}/>
+            {V0.symbol}
         
             </svg>
         );
