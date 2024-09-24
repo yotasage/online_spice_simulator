@@ -1,11 +1,10 @@
 import React from "react";
 
-import Electrons from '/components/schematic/electrons'
-import {Cell, Pin, Coordinate} from '/components/schematic/cell'
+import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
 
 var Omega = '\u03A9';
 
-export default  class Resistor extends Cell {
+export default class Resistor extends Cell {
     constructor(name: string, value: number=100, x: number=0, y: number=0, origin: Coordinate=null) {
         super(name, value, x, y, origin, 2);
 

@@ -1,7 +1,6 @@
 import React from "react";
 
-import Electrons from '/components/schematic/electrons'
-import Cell from "../cell";
+import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
 
 export default class Vdc extends Cell {
     constructor(name: string, value: number=5, x: number=0, y: number=0, origin: Coordinate=null) {

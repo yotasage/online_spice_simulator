@@ -2,6 +2,7 @@ import React from "react";
 
 import Resistor from './components/resistor'
 import Vdc from "./components/vdc";
+import {Coordinate, Wire} from "./schematicItems";
 
 class SchematicEditor extends React.Component {
     constructor(props) {
@@ -15,10 +16,12 @@ class SchematicEditor extends React.Component {
 
     // }
 
-    render() {        
-        var R1 = new Resistor('R1', 300, 120, 60);//<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
-        var V0 = new Vdc('V0', 5, 50, 60);
-        console.log(R1)
+    render() {
+        //<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
+        var R1 = new Resistor('R1', 300, 120, 60);
+        var V0 = new Vdc('V0', 5, 55, 60);
+        var W0 = new Wire('net0', new Coordinate(55, 50), new Coordinate(120, 50));
+        var W1 = new Wire('net1', new Coordinate(55, 90), new Coordinate(120, 90));
 
         return (
             <svg
@@ -46,6 +49,8 @@ class SchematicEditor extends React.Component {
         
             {R1.symbol}
             {V0.symbol}
+            {W0.symbol}
+            {W1.symbol}
         
             </svg>
         );
