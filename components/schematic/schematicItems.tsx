@@ -94,30 +94,18 @@ export class Wire {
     }
 }
 
-export function WireSymbol(props) {
-    // const translate_group = "translate(" + props.origin.x + "," + props.origin.y + ")";
-    
+export function WireSymbol(props) {   
     var path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "L" + props.p2.origin.x + "," + props.p2.origin.y;
     
-    var p12_vect = {x: props.p2.origin.x - props.p1.origin.x, y: props.p2.origin.y - props.p1.origin.y}
-    var current_path = path
-    var current_path_length = Math.sqrt(Math.pow(p12_vect.x, 2) + Math.pow(p12_vect.y, 2))
-
-    var current_rects = []
-    for (var i = 0; i < current_path_length/10; i++) {
-        current_rects.push(<Electrons index={i} start={props.p1.origin} stop={props.p2.origin}></Electrons>)
-    }
-
-    // transform={translate_group}
     return (
         <g className="electricalComponent wire"> 
-            {current_rects}
+            <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
 
             <path
                 fill="none"
                 stroke="#fff"
                 strokeMiterlimit="10"
-                d={current_path}
+                d={path}
                 pointerEvents="stroke"
             ></path>
 
@@ -125,29 +113,35 @@ export function WireSymbol(props) {
                 fill="none"
                 stroke="none"
                 strokeMiterlimit="10"
-                d={current_path}
+                d={path}
                 pointerEvents="stroke"
             ></path>
         </g>);
 }
 
-export function Electrons({index, start, stop, size=4, speed=1, spacing=10}) {
-
-    // console.log(index)
-    // console.log(start)
-    // console.log(stop)
+export function Electrons({start, stop, size=4, speed=1, spacing=10}) {
+    var current_rects: React.SVGProps<SVGRectElement>[] = [];
 
     var path_vect = {x: start.x - stop.x, y: start.y - stop.y}
     var current_path_length = Math.sqrt(Math.pow(path_vect.x, 2) + Math.pow(path_vect.y, 2))
 
+    var electronDensity = current_path_length/spacing;
+    var isInt = electronDensity % 1 === 0;
+
+    if (isInt !== true) {
+        electronDensity = Math.round(electronDensity)
+        spacing = current_path_length/electronDensity;
+    }
+
     var path = "M".concat(start.x, ",", start.y, "  L" , stop.x, ",", stop.y)
 
-    var current_style = {offsetPath: 'path("' + path + '")', animation: speed*current_path_length/spacing + "s linear " + -speed*index + "s infinite normal none followpath"}
     var translate = "translate(-" + size/2 + ", -" + size/2 + ")"
-
-    return (
-        <rect
-            key={index}
+    
+    for (var i = 0; i < electronDensity; i++) {
+        var current_style = {offsetPath: 'path("' + path + '")', animation: speed*current_path_length/spacing + "s linear " + -speed*i + "s infinite normal none followpath"}
+        
+        current_rects.push(<rect
+            key={i}
             className="electron"
             style={current_style}
             transform={translate}
@@ -155,7 +149,11 @@ export function Electrons({index, start, stop, size=4, speed=1, spacing=10}) {
             height={size}
             rx="1"
             fill="yellow"
-        ></rect>
+        ></rect>)
+    }
+
+    return (
+        <>{current_rects}</>
     );
   }
 

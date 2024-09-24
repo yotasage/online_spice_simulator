@@ -21,15 +21,6 @@ export function VdcSymbol(props) {
     
     var p1_path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "l0," + props.p1.length;
     var p2_path = "M" + props.p2.origin.x + "," + props.p2.origin.y + "l0," + -props.p2.length;
-    
-    var p12_vect = {x: props.p2.origin.x - props.p1.origin.x, y: props.p2.origin.y - props.p1.origin.y}
-    var current_path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "  L" + props.p2.origin.x + "," + props.p2.origin.y
-    var current_path_length = Math.sqrt(Math.pow(p12_vect.x, 2) + Math.pow(p12_vect.y, 2))
-
-    var current_rects = []
-    for (var i = 0; i < current_path_length/10; i++) {
-        current_rects.push(<Electrons index={i} start={props.p1.origin} stop={props.p2.origin}></Electrons>)
-    }
 
     return (
         <g className="electricalComponent vdc" id={props.name} transform={translate_group}>
@@ -109,14 +100,6 @@ export function VdcSymbol(props) {
                 pointerEvents="stroke"
             ></path>
 
-            {current_rects}
-
-            <path
-                fill="none"
-                stroke="none"
-                strokeMiterlimit="10"
-                d={current_path}
-                pointerEvents="stroke"
-            ></path>
+            <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
         </g>);
 }
