@@ -8,11 +8,11 @@ export default class Vdc extends Cell {
         
         var symbol_length: number = 20
 
-        this.p1.origin.y = this.p1.origin.y - this.p1.length
-        this.p2.origin.y = this.p2.origin.y + this.p2.length + symbol_length
+        this.pins[0].moveRelative(0, this.pins[0].origin.y - this.pins[0].length);
+        this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
         this.unit = 'V';
-        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.p1} p2={this.p2}></VdcSymbol>;
+        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]}></VdcSymbol>;
     }
 }
 
@@ -23,30 +23,22 @@ export function VdcSymbol(props) {
     var p2_path = "M" + props.p2.origin.x + "," + props.p2.origin.y + "l0," + -props.p2.length;
 
     return (
-        <g className="electricalComponent vdc" id={props.name} transform={translate_group}>
+        <g className="electricalComponent vdc" id={props.instanceName} transform={translate_group}>
             <text 
                 x="11" 
                 y="8" 
                 fontSize="8"
                 fill="#fff"
-                >{props.name}</text>
+                >{props.instanceName}
+            </text>
 
             <text 
                 x="11" 
                 y="18" 
                 fontSize="8"
                 fill="#fff"
-                >{props.val} V</text>
-
-            <ellipse
-                cx={props.p1.origin.x}
-                cy={props.p1.origin.y}
-                fill="#fff"
-                stroke="#fff"
-                pointerEvents="all"
-                rx="1.2"
-                ry="1.2"
-            ></ellipse>
+                >{props.val} V
+            </text>
 
             <ellipse
                 cx={0}
@@ -56,16 +48,6 @@ export function VdcSymbol(props) {
                 pointerEvents="all"
                 rx="10"
                 ry="10"
-            ></ellipse>
-
-            <ellipse
-                cx={props.p2.origin.x}
-                cy={props.p2.origin.y}
-                fill="#fff"
-                stroke="#fff"
-                pointerEvents="all"
-                rx="1.2"
-                ry="1.2"
             ></ellipse>
 
             <path
@@ -100,6 +82,8 @@ export function VdcSymbol(props) {
                 pointerEvents="stroke"
             ></path>
 
+            {props.p1.symbol}
+            {props.p2.symbol}
             <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
         </g>);
 }

@@ -10,11 +10,11 @@ export default class Resistor extends Cell {
 
         var symbol_length: number = 20
 
-        this.p1.origin.y = this.p1.origin.y - this.p1.length
-        this.p2.origin.y = this.p2.origin.y + this.p2.length + symbol_length
+        this.pins[0].moveRelative(0, this.pins[0].origin.y - this.pins[0].length);
+        this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
         this.unit = Omega;
-        this.symbol = <ResistorSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.p1} p2={this.p2}></ResistorSymbol>;
+        this.symbol = <ResistorSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]}></ResistorSymbol>;
     }
 }
 
@@ -42,7 +42,8 @@ export function ResistorSymbol(props) {
                 fontSize="8"
                 //textLength='10'
                 fill="#fff"
-                >{props.instanceName}</text>
+                >{props.instanceName}
+            </text>
 
             <text 
                 x="11" 
@@ -50,27 +51,8 @@ export function ResistorSymbol(props) {
                 fontSize="8"
                 //textLength='10'
                 fill="#fff"
-                >{props.val} {Omega}</text>
-
-            <ellipse
-                cx={props.p1.origin.x}
-                cy={props.p1.origin.y}
-                fill="#fff"
-                stroke="#fff"
-                pointerEvents="all"
-                rx="1.2"
-                ry="1.2"
-            ></ellipse>
-
-            <ellipse
-                cx={props.p2.origin.x}
-                cy={props.p2.origin.y}
-                fill="#fff"
-                stroke="#fff"
-                pointerEvents="all"
-                rx="1.2"
-                ry="1.2"
-            ></ellipse>
+                >{props.val} {Omega}
+            </text>
 
             <path
                 fill="none"
@@ -80,6 +62,8 @@ export function ResistorSymbol(props) {
                 pointerEvents="stroke"
             ></path>
 
+            {props.p1.symbol}
+            {props.p2.symbol}
             <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
         </g>);
 }

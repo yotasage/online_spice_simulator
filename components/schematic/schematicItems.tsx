@@ -1,8 +1,7 @@
 import React from "react";
 
 export class Cell {
-    p1: Pin;
-    p2: Pin;
+    pins: Pin[];
 
     origin: Coordinate;
 
@@ -27,16 +26,11 @@ export class Cell {
             this.origin = new Coordinate(x, y);
         }
         
-        // TODO: Use this in stead of what is done for pins below. Keep the pins in a list.
-        for (var i: number = 0; i > numPins; i++) {
-
+        this.pins = []
+        for (var i: number = 0; i < numPins; i++) {
+            let pin_coordinate: Coordinate = new Coordinate(0, 0);
+            this.pins.push(new Pin(pin_coordinate, 10));
         }
-
-        var p1_coord: Coordinate = new Coordinate(0, 0);
-        var p2_coord: Coordinate = new Coordinate(0, 0);
-
-        this.p1 = new Pin(p1_coord, 10);
-        this.p2 = new Pin(p2_coord, 10);
 
         //this.current_path = "";
 
@@ -60,9 +54,35 @@ export class Pin {
     origin: Coordinate;
     length: number;
 
+    symbol: React.JSX.Element;
+
     constructor(origin: Coordinate, length: number) {
         this.origin = origin;
         this.length = length;
+
+        this.makeSymbol();        
+    }
+
+    moveRelative(dx?: number, dy?: number, vector?: Coordinate) {
+        this.origin.moveRelative(dx, dy, vector);
+        this.makeSymbol();
+    }
+
+    moveAbsolute(x?: number, y?: number, origin?: Coordinate) {
+        this.origin.moveAbsolute(x, y, origin);
+        this.makeSymbol();
+    }
+
+    makeSymbol() {
+        this.symbol =   <ellipse
+                            cx={this.origin.x}
+                            cy={this.origin.y}
+                            fill="#fff"
+                            stroke="#fff"
+                            pointerEvents="all"
+                            rx="1.2"
+                            ry="1.2"
+                        ></ellipse>;
     }
 }
 
@@ -73,6 +93,28 @@ export class Coordinate {
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
+    }
+
+    moveRelative(dx?: number, dy?: number, vector?: Coordinate) {
+        if (vector !== undefined) {
+            this.x += vector.x;
+            this.y += vector.y;
+        }
+        else if (dx !== undefined && dy !== undefined) {
+            this.x += dx;
+            this.y += dy;
+        }
+    }
+
+    moveAbsolute(x?: number, y?: number, origin?: Coordinate) {
+        if (origin !== undefined) {
+            this.x = origin.x;
+            this.y = origin.y;
+        }
+        else if (x !== undefined && y !== undefined) {
+            this.x += x;
+            this.y += y;
+        }
     }
 }
 
