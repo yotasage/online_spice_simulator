@@ -10,6 +10,9 @@ export default class Resistor extends Cell {
 
         var symbol_length: number = 20
 
+        this.pins[0].name = "p";
+        this.pins[1].name = "n";
+
         this.pins[0].moveRelative(0, this.pins[0].origin.y - this.pins[0].length);
         this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
@@ -21,6 +24,8 @@ export default class Resistor extends Cell {
 export function ResistorSymbol(props) {
     const translate_group = "translate(" + props.origin.x + "," + props.origin.y + ")";
     
+    var current_path_points: Coordinate[] = [props.p1.origin, props.p2.origin];
+
     var symbol_svg = "M" + props.p1.origin.x + "," + props.p1.origin.y + "l0," + props.p1.length;
     
     symbol_svg = symbol_svg.concat(`l5,2.5
@@ -35,7 +40,7 @@ export function ResistorSymbol(props) {
     symbol_svg = symbol_svg + "l0," + props.p2.length;
     
     return (
-        <g className="electricalComponent res" id={props.instanceName} transform={translate_group}>
+        <g className="cell res" id={props.instanceName} transform={translate_group}>
             <text 
                 x="11" 
                 y="8" 
@@ -64,6 +69,6 @@ export function ResistorSymbol(props) {
 
             {props.p1.symbol}
             {props.p2.symbol}
-            <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
+            <Electrons points={current_path_points}></Electrons>
         </g>);
 }

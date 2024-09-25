@@ -60,11 +60,20 @@ export class Pin {
     origin: Coordinate;
     length: number;
 
+    name: string;
+
     symbol: React.JSX.Element;
 
-    constructor(origin: Coordinate, length: number) {
+    constructor(origin: Coordinate, length: number, name?: string) {
         this.origin = origin;
         this.length = length;
+        
+        if (name !== undefined) {
+            this.name = name;
+        }
+        else {
+            this.name = "";
+        }
 
         this.makeSymbol();        
     }
@@ -127,27 +136,30 @@ export class Coordinate {
 export class Wire {
     netName: string;
 
-    p1: Pin;
-    p2: Pin;
+    points: Coordinate[];
 
     symbol: React.JSX.Element;
 
-    constructor(net: string, p1_coord: Coordinate, p2_coord: Coordinate) {
+    constructor(net: string, points: Coordinate[]) {
         this.netName = net;
+        this.points = points;
 
-        this.p1 = new Pin(p1_coord, 0);
-        this.p2 = new Pin(p2_coord, 0);
-
-        this.symbol = <WireSymbol p1={this.p1} p2={this.p2}></WireSymbol>;
+        this.symbol = <WireSymbol points={this.points}></WireSymbol>;
     }
 }
 
-export function WireSymbol(props) {   
-    var path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "L" + props.p2.origin.x + "," + props.p2.origin.y;
+export function WireSymbol(props) {  
+    
+    var path = "M" + props.points[0].x + "," + props.points[0].y
+    for (let i: number = 1; i < props.points.length; i++) {
+        path += " L" + props.points[i].x + "," + props.points[i].y
+    }
+
+    // var path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "L" + props.p2.origin.x + "," + props.p2.origin.y;
     
     return (
-        <g className="electricalComponent wire"> 
-            <Electrons start={props.p1.origin} stop={props.p2.origin}></Electrons>
+        <g className="wire"> 
+            <Electrons points={props.points}></Electrons>
 
             <path
                 fill="none"
@@ -156,22 +168,22 @@ export function WireSymbol(props) {
                 d={path}
                 pointerEvents="stroke"
             ></path>
-
-            <path
-                fill="none"
-                stroke="none"
-                strokeMiterlimit="10"
-                d={path}
-                pointerEvents="stroke"
-            ></path>
         </g>);
 }
 
-export function Electrons({start, stop, size=4, speed=1, spacing=10}) {
+export function Electrons({points, size=4, speed=1, spacing=10}) {
     var current_rects: React.SVGProps<SVGRectElement>[] = [];
 
-    var path_vect = {x: start.x - stop.x, y: start.y - stop.y}
-    var current_path_length = Math.sqrt(Math.pow(path_vect.x, 2) + Math.pow(path_vect.y, 2))
+    var current_path_length = 0;
+    for (let i = 1; i < points.length; i++) {
+        let vector = {x: points[i].x - points[i-1].x, y: points[i].y - points[i-1].y}
+        current_path_length += Math.sqrt(Math.pow(vector.x, 2) + Math.pow(vector.y, 2))
+    }
+
+    var path = "M" + points[0].x + "," + points[0].y
+    for (let i: number = 1; i < points.length; i++) {
+        path += " L" + points[i].x + "," + points[i].y
+    }
 
     var electronDensity = current_path_length/spacing;
     var isInt = electronDensity % 1 === 0;
@@ -181,8 +193,7 @@ export function Electrons({start, stop, size=4, speed=1, spacing=10}) {
         spacing = current_path_length/electronDensity;
     }
 
-    var path = "M".concat(start.x, ",", start.y, "  L" , stop.x, ",", stop.y)
-
+    // This centers the electrons on the path.
     var translate = "translate(-" + size/2 + ", -" + size/2 + ")"
     
     for (var i = 0; i < electronDensity; i++) {
