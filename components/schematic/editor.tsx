@@ -18,7 +18,7 @@ class SchematicEditor extends React.Component {
 
     render() {
         //<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
-        var R1 = new Resistor('R1', 300, 120, 60);
+        var R1 = new Resistor('R1', 300);
         var V0 = new Vdc('V0', 5, 55, 60);
         var W0 = new Wire('net0', new Coordinate(55, 50), new Coordinate(120, 50));
         var W1 = new Wire('net1', new Coordinate(55, 90), new Coordinate(120, 90));

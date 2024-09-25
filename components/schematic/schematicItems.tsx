@@ -16,15 +16,28 @@ export class Cell {
     symbol: React.JSX.Element;
 
     // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
-    constructor(name: string, value: number=100, x: number=0, y: number=0, origin: Coordinate=null, numPins: number=2) {
+    // NOTE: Seems like the what is written in the above TODO might not be possible. Or, there is a work around. Pass an object instead.
+    constructor(name: string, value: number=100, x?: number, y?: number, origin?: Coordinate, numPins: number=2) {
 
-        
-        if (origin != null) {
+        this.unit = "";
+        this.value = value;
+
+        this.cellName = "";
+        this.instanceName = name;
+        this.libraryName = "";
+        this.techName = "";
+
+        if (origin !== undefined) {
             this.origin = origin;
         }
-        else {
+        else if (x !== undefined && y !== undefined) {
             this.origin = new Coordinate(x, y);
         }
+        else {
+            this.origin = new Coordinate(0, 0);
+            console.warn('An explicit position is not given to ' + this.instanceName + '. Placing it at (0, 0).');
+        }
+
         
         this.pins = []
         for (var i: number = 0; i < numPins; i++) {
@@ -34,13 +47,6 @@ export class Cell {
 
         //this.current_path = "";
 
-        this.unit = "";
-        this.value = value;
-
-        this.cellName = "";
-        this.instanceName = name;
-        this.libraryName = "";
-        this.techName = "";
 
 
     }

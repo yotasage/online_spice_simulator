@@ -5,7 +5,7 @@ import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
 var Omega = '\u03A9';
 
 export default class Resistor extends Cell {
-    constructor(name: string, value: number=100, x: number=0, y: number=0, origin: Coordinate=null) {
+    constructor(name: string, value: number=100, x?: number, y?: number, origin?: Coordinate) {
         super(name, value, x, y, origin, 2);
 
         var symbol_length: number = 20

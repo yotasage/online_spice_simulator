@@ -3,7 +3,7 @@ import React from "react";
 import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
 
 export default class Vdc extends Cell {
-    constructor(name: string, value: number=5, x: number=0, y: number=0, origin: Coordinate=null) {
+    constructor(name: string, value: number=5, x?: number, y?: number, origin?: Coordinate) {
         super(name, value, x, y, origin, 2);
         
         var symbol_length: number = 20
