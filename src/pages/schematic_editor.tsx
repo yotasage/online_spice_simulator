@@ -5,6 +5,8 @@ import "../app/globals.css";
 import { useState, useEffect } from 'react'
 
 import SchematicEditor from '/components/schematic/editor'
+import Link from 'next/link';
+import HomeIcon from '../../components/schematic/components/icons/home';
 
 const getSimOutput = async() => {
   const res = await fetch('/api/ex')
@@ -84,14 +86,18 @@ export default function About() {
 
     return (
     <div>
-      
-      <div className="border-double border-4 border-sky-500 top-0 left-0 bottom-0 absolute inline-block w-3/4">
+      <div className="grid border-double border-4 border-sky-500 top-0 left-0 absolute inline-block w-full h-16 overflow-hidden">
+        <Link href="/" className='card'>
+            <HomeIcon width='30' height='30'/>
+        </Link>
+      </div>
+      <div className="border-double border-4 border-sky-500 top-16 left-0 bottom-16 absolute inline-block w-full overflow-hidden">
         <SchematicEditor></SchematicEditor>
       </div>
       
-      <div className="border-double border-4 border-sky-500 top-0 right-0 absolute inline-block w-1/4 h-full">
+      <div className="border-double border-4 border-sky-500 bottom-0 left-0 absolute inline-block w-full h-16 overflow-hidden"></div>
 
-      </div>  
+      
     </div>
     
     )
