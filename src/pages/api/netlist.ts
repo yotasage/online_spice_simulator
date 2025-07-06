@@ -5,7 +5,10 @@ export default async function netlist(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-    var filePath = 'local_assets\\examples\\acmos1\\nmos_current_mirror\\dc.spi'
+    // console.log(req.body);
+  
+    // var filePath = 'local_assets\\examples\\acmos1\\nmos_current_mirror\\dc.spi'
+    var filePath = 'local_assets\\examples\\' + req.body
 
     var file = fs.createReadStream(filePath, { encoding: 'utf8' });
     var stat = fs.statSync(filePath);

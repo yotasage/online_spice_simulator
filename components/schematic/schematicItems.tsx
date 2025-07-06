@@ -1,16 +1,29 @@
 import React from "react";
 import SchematicEditor from "./editor";
 
+interface IWirePoint {
+    i: number;
+    c: Coordinate;
+    parent: Wire;
+}
+
+interface IConnection {
+    p: Pin;
+    wp: IWirePoint;
+}
+
 export class cellViewItem {
-    _parent: SchematicEditor | undefined;
+    _parent: SchematicEditor | cellViewItem | undefined;
 
     symbol: React.JSX.Element = <></>;
 
-    constructor(parent: SchematicEditor) {
+    private items: cellViewItem[] = [];
+
+    constructor(parent: SchematicEditor | cellViewItem) {
         this.parent = parent;
     }
 
-    set parent(val: SchematicEditor) {
+    set parent(val: SchematicEditor | cellViewItem) {
         this._parent = val;
         this.parent.addItem(this);
     }
@@ -22,6 +35,10 @@ export class cellViewItem {
         return this._parent;
     }
 
+    addItem(i: cellViewItem) {
+        this.items.push(i);
+    }
+
     id() {
         // This is just a prototype
         return "Prototype";
@@ -29,7 +46,7 @@ export class cellViewItem {
 }
 
 export class Cell extends cellViewItem {
-    pins: Pin[];
+    pins: Pin[] = [];
 
     origin: Coordinate;
 
@@ -40,6 +57,8 @@ export class Cell extends cellViewItem {
     instanceName: string;
     libraryName: string;
     techName: string;
+
+    connections: IConnection[] = [];
 
     // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
     // NOTE: Seems like the what is written in the above TODO might not be possible. Or, there is a work around. Pass an object instead.
@@ -64,12 +83,10 @@ export class Cell extends cellViewItem {
             this.origin = new Coordinate(0, 0);
             console.warn('An explicit position is not given to ' + this.instanceName + '. Placing it at (0, 0).');
         }
-
         
-        this.pins = []
         for (var i: number = 0; i < numPins; i++) {
             let pin_coordinate: Coordinate = new Coordinate(0, 0);
-            this.pins.push(new Pin(pin_coordinate, 10));
+            this.pins.push(new Pin(this, pin_coordinate, 10));
         }
 
         //this.current_path = "";
@@ -112,11 +129,25 @@ export class Cell extends cellViewItem {
         return coord;
     }
 
+    connect(p: Pin, wp: IWirePoint) {
+        // Only cell-wire and wire-wire connections can be made. Cell-cell connections are not allowed. At least, not for now, and porbably will not be allowed ever.
+        let conn: IConnection = {
+            p: p,
+            wp: wp,
+        }
+
+        this.connections.push(conn);
+    }
+
     connectDrawWire(device: Cell, p0name: string, p1name: string, netName: string) {
+        
         let p0coord: Coordinate = this.getPinAbsCoord(p0name);
         let p1coord: Coordinate = device.getPinAbsCoord(p1name);
-
+        
         var W0 = new Wire(this.parent, netName, [p0coord, p1coord]);
+        
+        this.connect(this.getPin(p0name), W0.points[0]);
+        device.connect(device.getPin(p1name), W0.points[1]);
 
         return W0;
     }
@@ -127,15 +158,15 @@ export class Cell extends cellViewItem {
 
 }
 
-export class Pin {
+export class Pin extends cellViewItem {
     origin: Coordinate;
     length: number;
 
     name: string;
 
-    symbol: React.JSX.Element = <></>;
-
-    constructor(origin: Coordinate, length: number, name?: string) {
+    constructor(parent: cellViewItem, origin: Coordinate, length: number, name?: string) {
+        super(parent);
+        
         this.origin = origin;
         this.length = length;
         
@@ -204,41 +235,64 @@ export class Coordinate {
     }
 }
 
+
+
 export class Wire extends cellViewItem {
     netName: string;
+    _speed: number = 0;
 
     _parent: SchematicEditor | undefined;
 
-    points: Coordinate[];
+    points: IWirePoint[];
 
     // connections: any[];
 
-    constructor(parent: SchematicEditor, net: string, points: Coordinate[]) {
+    constructor(parent: SchematicEditor | cellViewItem, net: string, points: Coordinate[]) {
         super(parent);
 
         this.netName = net;
-        this.points = points;
 
-        this.symbol = <WireSymbol points={this.points} key={'wire_' + this.netName}></WireSymbol>;
+        this.points = [];
+        for (let i: number = 0; i < points.length; i++) {
+            this.points.push({i:i, c:points[i], parent:this});
+        }
+
+        this.generateSymbol();
+    }
+
+    generateSymbol() {
+        this.symbol = <WireSymbol points={this.points} speed={this._speed} key={'wire_' + this.netName}></WireSymbol>;
     }
 
     id() {
         return `${this.netName} | points: ${this.points}`;
     }
+
+    set speed(val: number) {
+        this._speed = val;
+        this.generateSymbol();
+    }
+
+    get speed() {
+        return this._speed;
+    }
 }
 
 export function WireSymbol(props: any) {  
     
-    var path = "M" + props.points[0].x + "," + props.points[0].y
-    for (let i: number = 1; i < props.points.length; i++) {
-        path += " L" + props.points[i].x + "," + props.points[i].y
+    let points = [];
+    for (let p of props.points) {
+        points.push(p.c)
     }
 
-    // var path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "L" + props.p2.origin.x + "," + props.p2.origin.y;
+    var path = "M" + points[0].x + "," + points[0].y
+    for (let i: number = 1; i < points.length; i++) {
+        path += " L" + points[i].x + "," + points[i].y
+    }
 
     return (
         <g className="wire" key={props.myKey}> 
-            <Electrons points={props.points}></Electrons>
+            <Electrons points={points} speed={props.speed}></Electrons>
 
             <path
                 fill="none"
@@ -250,7 +304,14 @@ export function WireSymbol(props: any) {
         </g>);
 }
 
-export function Electrons({points=[] as Coordinate[], size=4, speed=1, spacing=10}) {
+export function Electrons({points=[] as Coordinate[], size=4, speed=0, spacing=10}) {
+    
+    if (speed == 0) {
+        return (
+            <></>
+        );
+    }
+
     var current_rects: React.SVGProps<SVGRectElement>[] = [];
 
     var current_path_length = 0;
@@ -275,8 +336,18 @@ export function Electrons({points=[] as Coordinate[], size=4, speed=1, spacing=1
     // This centers the electrons on the path.
     var translate = "translate(-" + size/2 + ", -" + size/2 + ")"
     
+    let dir: string = "";
+    if (speed > 0) {
+        dir = "normal";
+    }
+    else {
+        dir = "reverse";
+    }
+
+    speed = Math.abs(speed);
+
     for (var i = 0; i < electronDensity; i++) {
-        var current_style = {offsetPath: 'path("' + path + '")', animation: speed*current_path_length/spacing + "s linear " + -speed*i + "s infinite normal none followpath"}
+        var current_style = {offsetPath: 'path("' + path + '")', animation: 1/speed*current_path_length/spacing + "s linear " + -1/speed*i + "s infinite " + dir + " none followpath"}
         
         current_rects.push(<rect
             key={i}

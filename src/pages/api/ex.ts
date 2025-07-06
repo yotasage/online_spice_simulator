@@ -14,6 +14,6 @@ export default async function ngspice(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
-  const { stdout, stderr } = await exec('cd local_assets\\ngspice\\ngspice-43_64\\Spice64\\bin\\ & ngspice_con.exe ..\\..\\..\\..\\examples\\acmos1\\nmos_current_mirror\\dc.spi');
+  const { stdout, stderr } = await exec('cd local_assets\\ngspice\\ngspice-43_64\\Spice64\\bin\\ & ngspice_con.exe ..\\..\\..\\..\\examples\\' + req.body);
   res.status(200).json({ message: stdout })
 }

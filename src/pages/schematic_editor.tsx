@@ -9,7 +9,10 @@ import Link from 'next/link';
 import HomeIcon from '../../components/schematic/components/icons/home';
 
 const getSimOutput = async() => {
-  const res = await fetch('/api/ex')
+  const res = await fetch('/api/ex', {
+    method: 'POST', // TODO: This should probably be a GET, but a GET can not have a body. So, I have to figure out another way to specify which Spice file I want. Later though.
+    body: "ngspice\\basic1\\dc.spi",
+  })
   const res_json = res.json()
   return res_json
 
@@ -25,7 +28,10 @@ const getData = async() => {
 
 const getNetlist = async() => {
   console.log("Get netlist")
-  const res = await fetch('/api/netlist')
+  const res = await fetch('/api/netlist', {
+    method: 'POST', // TODO: This should probably be a GET, but a GET can not have a body. So, I have to figure out another way to specify which Spice file I want. Later though.
+    body: "ngspice\\basic1\\dc.spi",
+  })
   const body = res.body
 
   if (body === null) {
@@ -48,16 +54,45 @@ export default function About() {
 
     const handleClick = async() => {
       const endpointsimOutput = await getSimOutput()
-      console.log(endpointsimOutput)
-      setSimOutput(endpointsimOutput)
+      // console.log(endpointsimOutput)
 
-      const endpointData = await getData()
-      console.log(JSON.parse(endpointData)["i(vload)"]["data"][20])
+      let data: any = {};
+
+      // Parsing data
+
+      // Extract the last part of the output
+      let outputArray: string[] = endpointsimOutput.message.split('No. of Data Rows')[1].split('\r\n');
+      // console.log(outputArray)
+
+      // Get number of rows of data
+      // TODO: This should be used to extract the data from the output probably.
+      let rows: number = Number(outputArray[0].replace(" : ", ""));
+      // console.log(rows)
+
+      // Extract the simulation results
+      let dataArray: string[] = outputArray.slice(1, -2);
+      // console.log(dataArray)
+
+      // Split into name-value pairs and add to object to make it easy to access the data.
+      for (let d of dataArray) {
+        let dl = d.split(" = ");
+
+        data[dl[0]] = dl[1];
+      }
+      // console.log(data)
+      // console.log(data.net0)
+      // console.log(data["v0#branch"])
+
+      setSimOutput(data)
+
+      // const endpointData = await getData()
+      // console.log(JSON.parse(endpointData))
+      // console.log(JSON.parse(endpointData)["i(vload)"]["data"][20])
     }
 
     //const staticData = await fetch('/api/ngspice', { cache: 'force-cache' })
     const [simVersion, setSimVersion] = useState('null')
-    const [simOutput, setSimOutput] = useState('null')
+    const [simOutput, setSimOutput] = useState({})
     const [netlist, setNetlist] = useState('null')
     const [isLoading, setLoading] = useState(true)
 
@@ -94,9 +129,13 @@ export default function About() {
         <Link href="/" className='card'>
             <HomeIcon width='30' height='30'/>
         </Link>
+
+        <div className='card' onClick={handleClick}>
+          Run
+        </div>
       </div>
       <div className="border-double border-4 border-sky-500 top-16 left-0 bottom-16 absolute inline-block w-full overflow-hidden">
-        <SchematicEditor></SchematicEditor>
+        <SchematicEditor simOutput={simOutput}></SchematicEditor>
       </div>
       
       <div className="border-double border-4 border-sky-500 bottom-0 left-0 absolute inline-block w-full h-16 overflow-hidden"></div>

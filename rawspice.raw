@@ -1,0 +1,13 @@
+Title: * basic 1
+Date: Sun Jul  6 22:19:25  2025
+Plotname: Operating Point
+Flags: real
+No. Variables: 2
+No. Points: 1
+Variables:
+	0	v(net0)	voltage
+	1	i(v0)	current
+Values:
+ 0	5.000000000000000e+00
+	-1.666666666666667e-02
+

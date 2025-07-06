@@ -1,8 +1,11 @@
 import React from "react";
 
 import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
+import SchematicEditor from "../editor";
 
 export default class Vdc extends Cell {
+    _speed: number = 0;
+
     constructor(parent: SchematicEditor, name: string, value: number=5, x?: number, y?: number, origin?: Coordinate) {
         super(parent, name, value, x, y, origin, 2);
         
@@ -15,7 +18,21 @@ export default class Vdc extends Cell {
         this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
         this.unit = 'V';
-        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} key={'vdc_' + this.instanceName}></VdcSymbol>;
+        this.generateSymbol();
+        
+    }
+
+    generateSymbol() {
+        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} speed={this._speed} key={'vdc_' + this.instanceName}></VdcSymbol>;
+    }
+
+    set speed(val: number) {
+        this._speed = val;
+        this.generateSymbol();
+    }
+
+    get speed() {
+        return this._speed;
     }
 }
 
@@ -89,6 +106,6 @@ export function VdcSymbol(props: any) {
 
             {props.p1.symbol}
             {props.p2.symbol}
-            <Electrons points={current_path_points}></Electrons>
+            <Electrons points={current_path_points} speed={props.speed}></Electrons>
         </g>);
 }

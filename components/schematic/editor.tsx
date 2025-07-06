@@ -7,7 +7,7 @@ import Vdc from "./components/vdc";
 import {Coordinate, Wire, Cell, cellViewItem} from "./schematicItems";
 
 interface IProps {
-
+    simOutput: object;
 }
 
 interface IBox {
@@ -21,6 +21,7 @@ interface IState {
     viewBox: IBox;
     gridBox: IBox;
     svgStyle: any;
+    baseCurrent: Number;
 }
 
 class SchematicEditor extends React.Component<IProps, IState> {
@@ -44,7 +45,8 @@ class SchematicEditor extends React.Component<IProps, IState> {
         this.state = {
             viewBox: {x: -0, y: -0, h: 500, w: 500},
             gridBox: {x: -0, y: -0, h: 500, w: 500},
-            svgStyle: {height: '', width: '100%'}
+            svgStyle: {height: '', width: '100%'},
+            baseCurrent: 1,
         };
 
       }
@@ -119,6 +121,8 @@ class SchematicEditor extends React.Component<IProps, IState> {
         this.items.push(i);
     }
 
+
+
     render() {
         //<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
         
@@ -128,16 +132,36 @@ class SchematicEditor extends React.Component<IProps, IState> {
         var R0 = new Resistor(this, 'R0', 300, 150, 150);
         var R1 = new Resistor(this, 'R1', 300, 120, 60);
         var V0 = new Vdc(this, 'V0', 5, 55, 60);
-
+        
+        // Draw wires and make connections
         var W0 = V0.connectDrawWire(R1, 'p', 'p', 'net0');
-        var W1 = V0.connectDrawWire(R1, 'n', 'n', 'net1');
+        var W1 = V0.connectDrawWire(R1, 'n', 'n', '0');
 
         // Draw wires
         // var W0 = new Wire('net0', [V0.getPinAbsCoord('p'), new Coordinate(70, 20), new Coordinate(75, 30), R1.getPinAbsCoord('p')]);
         // var W1 = new Wire('net1', [V0.getPinAbsCoord('n'), R1.getPinAbsCoord('n')]);
 
-        // Make connections
+        
+        
+        console.log('this.props.simOutput')
+        console.log(this.props.simOutput)
+        
+        let is: number | undefined = this.props.simOutput["v0#branch"];
+        
+        let speed: number = 2;
 
+        if (is !== undefined) {
+            console.log(is);
+            console.log(is/this.state.baseCurrent);
+
+            speed = -1*is/this.state.baseCurrent;
+        }
+
+
+        R1.speed = speed;
+        V0.speed = -speed;
+        W0.speed = speed;
+        W1.speed = -speed;
 
         let components = [];
         for (let c of this.items) {
@@ -147,7 +171,7 @@ class SchematicEditor extends React.Component<IProps, IState> {
         //     components.push(w.symbol);
         // }
 
-        // console.log(components)
+        // console.log(R1.connections)
 
         let viewBox = this.state.viewBox.x + ' ' + this.state.viewBox.y + ' ' + this.state.viewBox.h + ' ' + this.state.viewBox.w
 

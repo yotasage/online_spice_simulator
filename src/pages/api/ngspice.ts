@@ -14,6 +14,8 @@ export default async function ngspice(
   req: NextApiRequest,
   res: NextApiResponse<ResponseData>
 ) {
+
+  console.log('ngspice started')
   /*const ng = child.spawn("powershell.exe",["./local_assets/active_ngspice/Spice64/bin/ngspice_con.exe"], {
     detached: true
   });

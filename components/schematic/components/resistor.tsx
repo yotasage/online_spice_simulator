@@ -6,6 +6,8 @@ import SchematicEditor from "../editor";
 var Omega = '\u03A9';
 
 export default class Resistor extends Cell {
+    _speed: number = 0;
+
     constructor(parent: SchematicEditor, name: string, value: number=100, x?: number, y?: number, origin?: Coordinate) {
         super(parent, name, value, x, y, origin, 2);
 
@@ -18,7 +20,21 @@ export default class Resistor extends Cell {
         this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
         this.unit = Omega;
-        this.symbol = <ResistorSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} key={'res_' + this.instanceName}></ResistorSymbol>;
+        this.generateSymbol();
+        
+    }
+
+    generateSymbol() {
+        this.symbol = <ResistorSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} speed={this._speed} key={'res_' + this.instanceName}></ResistorSymbol>;
+    }
+
+    set speed(val: number) {
+        this._speed = val;
+        this.generateSymbol();
+    }
+
+    get speed() {
+        return this._speed;
     }
 }
 
@@ -70,6 +86,6 @@ export function ResistorSymbol(props: any) {
 
             {props.p1.symbol}
             {props.p2.symbol}
-            <Electrons points={current_path_points}></Electrons>
+            <Electrons points={current_path_points} speed={props.speed}></Electrons>
         </g>);
 }
