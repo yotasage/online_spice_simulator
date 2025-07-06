@@ -4,7 +4,7 @@ import Image from 'next/image'
 import "../app/globals.css";
 import { useState, useEffect } from 'react'
 
-import SchematicEditor from '/components/schematic/editor'
+import SchematicEditor from '../../components/schematic/editor'
 import Link from 'next/link';
 import HomeIcon from '../../components/schematic/components/icons/home';
 
@@ -27,6 +27,10 @@ const getNetlist = async() => {
   console.log("Get netlist")
   const res = await fetch('/api/netlist')
   const body = res.body
+
+  if (body === null) {
+    return "";
+  }
 
   const reader = body.getReader();
   const decoder = new TextDecoder('utf-8');

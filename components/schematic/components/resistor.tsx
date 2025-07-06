@@ -21,7 +21,7 @@ export default class Resistor extends Cell {
     }
 }
 
-export function ResistorSymbol(props) {
+export function ResistorSymbol(props: any) {
     const translate_group = "translate(" + props.origin.x + "," + props.origin.y + ")";
     
     var current_path_points: Coordinate[] = [props.p1.origin, props.p2.origin];

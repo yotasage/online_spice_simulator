@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import "../app/globals.css";
-import { useState, useEffect } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
 
 const getSimOutput = async() => {
   const res = await fetch('/api/ex')
@@ -18,7 +18,7 @@ const getData = async() => {
 }
 
 export default function About() {
-    const handleRun = async(e: SubmitEvent) => {
+    const handleRun = async(e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       
       // Read the form data

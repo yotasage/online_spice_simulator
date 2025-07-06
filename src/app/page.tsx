@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -108,7 +109,7 @@ export default function Home() {
           </p>
         </a>
 
-        <a
+        <Link
           href="/about"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
         >
@@ -121,9 +122,9 @@ export default function Home() {
           <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
             Ngspice examples.
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/custom"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
         >
@@ -136,9 +137,9 @@ export default function Home() {
           <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
             Ngspice custom circuit.
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/svg_test"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
         >
@@ -151,9 +152,9 @@ export default function Home() {
           <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
             SVG test.
           </p>
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/schematic_editor"
           className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
         >
@@ -166,7 +167,7 @@ export default function Home() {
           <p className={`m-0 max-w-[30ch] text-sm opacity-50 text-balance`}>
             Schematic editor.
           </p>
-        </a>
+        </Link>
       </div>
     </main>
   );

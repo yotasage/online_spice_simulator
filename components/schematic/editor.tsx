@@ -115,13 +115,21 @@ class SchematicEditor extends React.Component<IProps, IState> {
         }
     }
 
+    
+
     render() {
         //<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
-        var R0 = new Resistor('R0', 300, 0, 0);
+        
+        // Instanciate components and place them.
+        var R0 = new Resistor('R0', 300, 150, 150);
         var R1 = new Resistor('R1', 300, 120, 60);
         var V0 = new Vdc('V0', 5, 55, 60);
-        var W0 = new Wire('net0', [new Coordinate(55, 50), new Coordinate(70, 20), new Coordinate(75, 30), new Coordinate(120, 50)]);
-        var W1 = new Wire('net1', [new Coordinate(55, 90), new Coordinate(120, 90)]);
+
+        // Draw wires
+        var W0 = new Wire('net0', [V0.getPinAbsCoord('p'), new Coordinate(70, 20), new Coordinate(75, 30), R1.getPinAbsCoord('p')]);
+        var W1 = new Wire('net1', [V0.getPinAbsCoord('n'), R1.getPinAbsCoord('n')]);
+
+        // Make connections
 
         let components = [R0.symbol, R1.symbol, V0.symbol, W0.symbol, W1.symbol]
 

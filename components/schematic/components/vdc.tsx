@@ -19,7 +19,7 @@ export default class Vdc extends Cell {
     }
 }
 
-export function VdcSymbol(props) {
+export function VdcSymbol(props: any) {
     const translate_group = "translate(" + props.origin.x + "," + props.origin.y + ")";
     
     var current_path_points: Coordinate[] = [props.p1.origin, props.p2.origin];

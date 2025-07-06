@@ -24,6 +24,11 @@ const getNetlist = async() => {
   const res = await fetch('/api/netlist')
   const body = res.body
 
+  if (body === null) {
+    console.log("Get netlist - body is null")
+    return "";
+  }
+
   const reader = body.getReader();
   const decoder = new TextDecoder('utf-8');
 

@@ -13,7 +13,7 @@ export class Cell {
     libraryName: string;
     techName: string;
 
-    symbol: React.JSX.Element;
+    symbol: React.JSX.Element = <></>;
 
     // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
     // NOTE: Seems like the what is written in the above TODO might not be possible. Or, there is a work around. Pass an object instead.
@@ -52,8 +52,38 @@ export class Cell {
     }
 
     rotate(val: number, useDeg: Boolean = true) {
-
+        console.log(val);
     }
+
+    getPin(name: string) {
+        for (let p of this.pins) {
+            if (p.name == name) {
+                return p;
+            }
+        }
+        throw new Error(`No pin named ${name} on ${this.instanceName} | cell: ${this.cellName} | lib: ${this.libraryName}.`);
+    }
+
+    getPinAbsCoord(name: string) {        
+        let pin: Pin | null = null
+        
+        for (var p of this.pins) {
+            if (p.name == name) {
+                pin = p;
+                break;
+            }
+        }
+        
+        if (pin === null) {
+            throw new Error(`No pin named ${name} on ${this.instanceName} | cell: ${this.cellName} | lib: ${this.libraryName}.`);
+        }
+
+        let coord: Coordinate = new Coordinate(pin.origin.x + this.origin.x, pin.origin.y + this.origin.y);
+
+        return coord;
+    }
+
+
 }
 
 export class Pin {
@@ -62,7 +92,7 @@ export class Pin {
 
     name: string;
 
-    symbol: React.JSX.Element;
+    symbol: React.JSX.Element = <></>;
 
     constructor(origin: Coordinate, length: number, name?: string) {
         this.origin = origin;
@@ -148,7 +178,7 @@ export class Wire {
     }
 }
 
-export function WireSymbol(props) {  
+export function WireSymbol(props: any) {  
     
     var path = "M" + props.points[0].x + "," + props.points[0].y
     for (let i: number = 1; i < props.points.length; i++) {
@@ -171,7 +201,7 @@ export function WireSymbol(props) {
         </g>);
 }
 
-export function Electrons({points, size=4, speed=1, spacing=10}) {
+export function Electrons({points=[] as Coordinate[], size=4, speed=1, spacing=10}) {
     var current_rects: React.SVGProps<SVGRectElement>[] = [];
 
     var current_path_length = 0;
