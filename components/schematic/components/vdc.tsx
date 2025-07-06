@@ -3,8 +3,8 @@ import React from "react";
 import {Cell, Pin, Coordinate, Electrons} from "../schematicItems";
 
 export default class Vdc extends Cell {
-    constructor(name: string, value: number=5, x?: number, y?: number, origin?: Coordinate) {
-        super(name, value, x, y, origin, 2);
+    constructor(parent: SchematicEditor, name: string, value: number=5, x?: number, y?: number, origin?: Coordinate) {
+        super(parent, name, value, x, y, origin, 2);
         
         var symbol_length: number = 20
 
@@ -15,7 +15,7 @@ export default class Vdc extends Cell {
         this.pins[1].moveRelative(0, this.pins[1].origin.y + this.pins[1].length + symbol_length)
 
         this.unit = 'V';
-        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]}></VdcSymbol>;
+        this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} key={'vdc_' + this.instanceName}></VdcSymbol>;
     }
 }
 

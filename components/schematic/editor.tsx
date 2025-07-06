@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import Resistor from './components/resistor'
 import Vdc from "./components/vdc";
-import {Coordinate, Wire} from "./schematicItems";
+import {Coordinate, Wire, Cell, cellViewItem} from "./schematicItems";
 
 interface IProps {
 
@@ -26,6 +26,7 @@ interface IState {
 class SchematicEditor extends React.Component<IProps, IState> {
     private svgRef: React.RefObject<SVGSVGElement> = React.createRef<SVGSVGElement>();
     private svgCenterRef: React.RefObject<SVGRectElement> = React.createRef<SVGRectElement>();
+    private items: cellViewItem[] = [];
     
     constructor(props: IProps) {
         super(props);
@@ -39,8 +40,7 @@ class SchematicEditor extends React.Component<IProps, IState> {
         window.addEventListener('resize', this.handleResize.bind(this))
 
         // console.log(this.svgRef.current)
-
-
+        
         this.state = {
             viewBox: {x: -0, y: -0, h: 500, w: 500},
             gridBox: {x: -0, y: -0, h: 500, w: 500},
@@ -56,7 +56,7 @@ class SchematicEditor extends React.Component<IProps, IState> {
     handleWheel(e: React.WheelEvent<SVGElement>) {
         if (this.svgRef != null && this.svgRef.current != null) {
             let realCenter = this.svgCenterRef.current?.getBoundingClientRect()
-            console.log(realCenter)
+            // console.log(realCenter)
 
 
             let viewBoxZoom: IBox = this.state.viewBox;
@@ -89,7 +89,7 @@ class SchematicEditor extends React.Component<IProps, IState> {
 
             this.setState({viewBox: viewBox, gridBox: gridBox});
 
-            console.log(realWidth, realHeight)
+            // console.log(realWidth, realHeight)
         }
     }
 
@@ -104,7 +104,7 @@ class SchematicEditor extends React.Component<IProps, IState> {
 
             let ratio = w/h;
 
-            console.log(w, h, ratio)
+            // console.log(w, h, ratio)
 
             if (ratio >= 1) {
                 this.setState({svgStyle: {height: '', width: '100%'}});
@@ -115,23 +115,39 @@ class SchematicEditor extends React.Component<IProps, IState> {
         }
     }
 
-    
+    addItem(i: cellViewItem) {
+        this.items.push(i);
+    }
 
     render() {
         //<Resistor ref={this.R1_ref} name={'R1'} val={300} origin={{x: 120, y: 60}}/>
         
+        this.items = [];
+
         // Instanciate components and place them.
-        var R0 = new Resistor('R0', 300, 150, 150);
-        var R1 = new Resistor('R1', 300, 120, 60);
-        var V0 = new Vdc('V0', 5, 55, 60);
+        var R0 = new Resistor(this, 'R0', 300, 150, 150);
+        var R1 = new Resistor(this, 'R1', 300, 120, 60);
+        var V0 = new Vdc(this, 'V0', 5, 55, 60);
+
+        var W0 = V0.connectDrawWire(R1, 'p', 'p', 'net0');
+        var W1 = V0.connectDrawWire(R1, 'n', 'n', 'net1');
 
         // Draw wires
-        var W0 = new Wire('net0', [V0.getPinAbsCoord('p'), new Coordinate(70, 20), new Coordinate(75, 30), R1.getPinAbsCoord('p')]);
-        var W1 = new Wire('net1', [V0.getPinAbsCoord('n'), R1.getPinAbsCoord('n')]);
+        // var W0 = new Wire('net0', [V0.getPinAbsCoord('p'), new Coordinate(70, 20), new Coordinate(75, 30), R1.getPinAbsCoord('p')]);
+        // var W1 = new Wire('net1', [V0.getPinAbsCoord('n'), R1.getPinAbsCoord('n')]);
 
         // Make connections
 
-        let components = [R0.symbol, R1.symbol, V0.symbol, W0.symbol, W1.symbol]
+
+        let components = [];
+        for (let c of this.items) {
+            components.push(c.symbol);
+        }
+        // for (let w of this.wires) {
+        //     components.push(w.symbol);
+        // }
+
+        // console.log(components)
 
         let viewBox = this.state.viewBox.x + ' ' + this.state.viewBox.y + ' ' + this.state.viewBox.h + ' ' + this.state.viewBox.w
 

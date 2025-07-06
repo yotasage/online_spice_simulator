@@ -1,6 +1,34 @@
 import React from "react";
+import SchematicEditor from "./editor";
 
-export class Cell {
+export class cellViewItem {
+    _parent: SchematicEditor | undefined;
+
+    symbol: React.JSX.Element = <></>;
+
+    constructor(parent: SchematicEditor) {
+        this.parent = parent;
+    }
+
+    set parent(val: SchematicEditor) {
+        this._parent = val;
+        this.parent.addItem(this);
+    }
+
+    get parent() {
+        if (this._parent === undefined) {
+            throw new Error(`No parent assigned to ${this.id()}.`);
+        }
+        return this._parent;
+    }
+
+    id() {
+        // This is just a prototype
+        return "Prototype";
+    }
+}
+
+export class Cell extends cellViewItem {
     pins: Pin[];
 
     origin: Coordinate;
@@ -13,11 +41,10 @@ export class Cell {
     libraryName: string;
     techName: string;
 
-    symbol: React.JSX.Element = <></>;
-
     // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
     // NOTE: Seems like the what is written in the above TODO might not be possible. Or, there is a work around. Pass an object instead.
-    constructor(name: string, value: number=100, x?: number, y?: number, origin?: Coordinate, numPins: number=2) {
+    constructor(parent: SchematicEditor, name: string, value: number=100, x?: number, y?: number, origin?: Coordinate, numPins: number=2) {
+        super(parent);
 
         this.unit = "";
         this.value = value;
@@ -51,6 +78,8 @@ export class Cell {
 
     }
 
+    
+
     rotate(val: number, useDeg: Boolean = true) {
         console.log(val);
     }
@@ -83,6 +112,18 @@ export class Cell {
         return coord;
     }
 
+    connectDrawWire(device: Cell, p0name: string, p1name: string, netName: string) {
+        let p0coord: Coordinate = this.getPinAbsCoord(p0name);
+        let p1coord: Coordinate = device.getPinAbsCoord(p1name);
+
+        var W0 = new Wire(this.parent, netName, [p0coord, p1coord]);
+
+        return W0;
+    }
+
+    id() {
+        return `${this.instanceName} | cell: ${this.cellName} | lib: ${this.libraryName}`;
+    }
 
 }
 
@@ -163,18 +204,26 @@ export class Coordinate {
     }
 }
 
-export class Wire {
+export class Wire extends cellViewItem {
     netName: string;
+
+    _parent: SchematicEditor | undefined;
 
     points: Coordinate[];
 
-    symbol: React.JSX.Element;
+    // connections: any[];
 
-    constructor(net: string, points: Coordinate[]) {
+    constructor(parent: SchematicEditor, net: string, points: Coordinate[]) {
+        super(parent);
+
         this.netName = net;
         this.points = points;
 
-        this.symbol = <WireSymbol points={this.points}></WireSymbol>;
+        this.symbol = <WireSymbol points={this.points} key={'wire_' + this.netName}></WireSymbol>;
+    }
+
+    id() {
+        return `${this.netName} | points: ${this.points}`;
     }
 }
 
@@ -186,9 +235,9 @@ export function WireSymbol(props: any) {
     }
 
     // var path = "M" + props.p1.origin.x + "," + props.p1.origin.y + "L" + props.p2.origin.x + "," + props.p2.origin.y;
-    
+
     return (
-        <g className="wire"> 
+        <g className="wire" key={props.myKey}> 
             <Electrons points={props.points}></Electrons>
 
             <path
