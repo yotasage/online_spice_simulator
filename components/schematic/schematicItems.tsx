@@ -7,7 +7,17 @@ interface IWirePoint {
     parent: Wire;
 }
 
-interface IConnection {
+interface IConnectionCell2Wire {
+    p: Pin;
+    wp: IWirePoint;
+}
+
+interface IConnectionWire2Wire {
+    wp0: IWirePoint;
+    wp1: IWirePoint;
+}
+
+interface IWireConnection {
     p: Pin;
     wp: IWirePoint;
 }
@@ -25,7 +35,7 @@ export class cellViewItem {
 
     set parent(val: SchematicEditor | cellViewItem) {
         this._parent = val;
-        this.parent.addItem(this);
+        // this.parent.addItem(this);
     }
 
     get parent() {
@@ -48,6 +58,8 @@ export class cellViewItem {
 export class Cell extends cellViewItem {
     pins: Pin[] = [];
 
+    _speed: number = 0;
+
     origin: Coordinate;
 
     value: number;
@@ -58,7 +70,7 @@ export class Cell extends cellViewItem {
     libraryName: string;
     techName: string;
 
-    connections: IConnection[] = [];
+    connections: IConnectionCell2Wire[] = [];
 
     // TODO: Figure out how to handle the origin in the constructor. It is not okay to assign null to origin as a default value. Investigate more to see if it is possible to do something similar as with args* in Python.
     // NOTE: Seems like the what is written in the above TODO might not be possible. Or, there is a work around. Pass an object instead.
@@ -95,7 +107,49 @@ export class Cell extends cellViewItem {
 
     }
 
-    
+    generateSymbol() {
+        // This is just a prototype
+    }
+
+    set speed(val: number) {
+        this._speed = val;
+
+        // console.log(this.connections);
+
+        for (let conn of this.connections) {
+            if (conn.p.name == 'p') {
+                if (this._speed > 0) {
+                    conn.wp.parent.speed = this._speed;
+                }
+                else if (this._speed < 0) {
+                    conn.wp.parent.speed = -this._speed;
+                }
+                else {
+                    conn.wp.parent.speed = this._speed;
+                }
+            }
+            else if (conn.p.name == 'n') {
+                if (this._speed > 0) {
+                    conn.wp.parent.speed = -this._speed;
+                }
+                else if (this._speed < 0) {
+                    conn.wp.parent.speed = this._speed;
+                }
+                else {
+                    conn.wp.parent.speed = this._speed;
+                }
+            }
+            else {
+                throw new Error(`No Pin named p nor n on ${this.id()}.`);
+            }
+        }
+
+        this.generateSymbol();
+    }
+
+    get speed() {
+        return this._speed;
+    }
 
     rotate(val: number, useDeg: Boolean = true) {
         console.log(val);
@@ -131,10 +185,12 @@ export class Cell extends cellViewItem {
 
     connect(p: Pin, wp: IWirePoint) {
         // Only cell-wire and wire-wire connections can be made. Cell-cell connections are not allowed. At least, not for now, and porbably will not be allowed ever.
-        let conn: IConnection = {
+        let conn: IConnectionCell2Wire = {
             p: p,
             wp: wp,
         }
+
+        p.netName = wp.parent.netName;
 
         this.connections.push(conn);
     }
@@ -147,7 +203,10 @@ export class Cell extends cellViewItem {
         var W0 = new Wire(this.parent, netName, [p0coord, p1coord]);
         
         this.connect(this.getPin(p0name), W0.points[0]);
+        W0.connect(this.getPin(p0name), W0.points[0]);
+
         device.connect(device.getPin(p1name), W0.points[1]);
+        W0.connect(device.getPin(p1name), W0.points[1]);
 
         return W0;
     }
@@ -156,9 +215,17 @@ export class Cell extends cellViewItem {
         return `${this.instanceName} | cell: ${this.cellName} | lib: ${this.libraryName}`;
     }
 
+    getSpice() {
+        if (this.connections.length > 0) {
+            return `${this.instanceName} ${this.connections[0].wp.parent.netName} ${this.connections[1].wp.parent.netName} ${this.value}`
+        }
+        return '';
+    }
+
 }
 
 export class Pin extends cellViewItem {
+    netName: string | undefined;
     origin: Coordinate;
     length: number;
 
@@ -245,7 +312,7 @@ export class Wire extends cellViewItem {
 
     points: IWirePoint[];
 
-    // connections: any[];
+    connections: IConnectionCell2Wire[] = [];
 
     constructor(parent: SchematicEditor | cellViewItem, net: string, points: Coordinate[]) {
         super(parent);
@@ -268,9 +335,23 @@ export class Wire extends cellViewItem {
         return `${this.netName} | points: ${this.points}`;
     }
 
+    connect(p: Pin, wp: IWirePoint) {
+        // Only cell-wire and wire-wire connections can be made. Cell-cell connections are not allowed. At least, not for now, and porbably will not be allowed ever.
+        let conn: IConnectionCell2Wire = {
+            p: p,
+            wp: wp,
+        }
+
+        p.netName = this.netName;
+
+        this.connections.push(conn);
+    }
+
     set speed(val: number) {
-        this._speed = val;
-        this.generateSymbol();
+        if (this._speed != val) {
+            this._speed = val;
+            this.generateSymbol();
+        }
     }
 
     get speed() {

@@ -6,9 +6,16 @@ import SchematicEditor from "../editor";
 export default class Vdc extends Cell {
     _speed: number = 0;
 
+    vdc: number = 0;
+    vtran: number = 0;
+    vacmag: number = 0;
+    vacphase: number = 0;
+
     constructor(parent: SchematicEditor, name: string, value: number=5, x?: number, y?: number, origin?: Coordinate) {
         super(parent, name, value, x, y, origin, 2);
         
+        this.vdc = value;
+
         var symbol_length: number = 20
 
         this.pins[0].name = "p";
@@ -26,13 +33,8 @@ export default class Vdc extends Cell {
         this.symbol = <VdcSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} speed={this._speed} key={'vdc_' + this.instanceName}></VdcSymbol>;
     }
 
-    set speed(val: number) {
-        this._speed = val;
-        this.generateSymbol();
-    }
-
-    get speed() {
-        return this._speed;
+    getSpice() {
+        return `${this.instanceName} ${this.connections[0].wp.parent.netName} ${this.connections[1].wp.parent.netName} dc ${this.vdc}`
     }
 }
 

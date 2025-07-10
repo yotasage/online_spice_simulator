@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import SchematicEditor from '../../components/schematic/editor'
 import Link from 'next/link';
 import HomeIcon from '../../components/schematic/components/icons/home';
+import Cell, { cellViewItem } from '../../components/schematic/schematicItems';
 
 const getSimOutput = async() => {
   const res = await fetch('/api/ex', {
@@ -52,7 +53,7 @@ const getNetlist = async() => {
 
 export default function About() {
 
-    const handleClick = async() => {
+    const handleRunSim = async() => {
       const endpointsimOutput = await getSimOutput()
       // console.log(endpointsimOutput)
 
@@ -90,10 +91,29 @@ export default function About() {
       // console.log(JSON.parse(endpointData)["i(vload)"]["data"][20])
     }
 
+    const handleNetlistChange = async(netlist: cellViewItem[]) => {
+      let netlistStringList: string[] = [];
+
+      for (let c of netlist) {
+        console.log(c);
+        if (c instanceof Cell) {
+          let spice: string = c.getSpice();
+          if (spice != '') {
+            netlistStringList.push(c.getSpice() + '\r\n');
+          }
+        }
+      }
+
+      console.log(netlistStringList);
+
+      setNetlist(netlistStringList);
+
+    }
+
     //const staticData = await fetch('/api/ngspice', { cache: 'force-cache' })
     const [simVersion, setSimVersion] = useState('null')
     const [simOutput, setSimOutput] = useState({})
-    const [netlist, setNetlist] = useState('null')
+    const [netlist, setNetlist] = useState([] as any[])
     const [isLoading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -117,11 +137,9 @@ export default function About() {
     if (!simVersion) return <p>Loading simulator version</p>
     if (!simOutput) return <p>No profile data</p>
     if (!netlist) return <p>Loading netlist</p>
-
-    const rightnow = () => new Date().toLocaleTimeString()
       
     // https://svg2jsx.com/
-    // <button onClick={handleClick}>Run</button>
+    // <button onClick={handleRunSim}>Run</button>
 
     return (
     <div>
@@ -130,15 +148,26 @@ export default function About() {
             <HomeIcon width='30' height='30'/>
         </Link>
 
-        <div className='card' onClick={handleClick}>
+        <div className='card' onClick={handleRunSim}>
           Run
         </div>
+
+        {/* <div className='card' onClick={handleNetlist}>
+          Netlist
+        </div> */}
       </div>
-      <div className="border-double border-4 border-sky-500 top-16 left-0 bottom-16 absolute inline-block w-full overflow-hidden">
-        <SchematicEditor simOutput={simOutput}></SchematicEditor>
+
+      <div className="border-double border-4 border-sky-500 top-16 left-0 bottom-16 absolute inline-block w-3/4 overflow-hidden">
+        <SchematicEditor simOutput={simOutput} onNetlistChange={handleNetlistChange}></SchematicEditor>
+      </div>
+
+      <div className="border-double border-4 border-sky-500 top-16 right-0 bottom-16 absolute inline-block w-1/4 overflow-hidden">
+        <p className="whitespace-pre">{netlist}</p>
       </div>
       
-      <div className="border-double border-4 border-sky-500 bottom-0 left-0 absolute inline-block w-full h-16 overflow-hidden"></div>
+      <div className="border-double border-4 border-sky-500 bottom-0 left-0 absolute inline-block w-full h-16 overflow-hidden">
+        {}
+      </div>
 
       
     </div>

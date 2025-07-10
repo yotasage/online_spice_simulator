@@ -27,15 +27,6 @@ export default class Resistor extends Cell {
     generateSymbol() {
         this.symbol = <ResistorSymbol instanceName={this.instanceName} val={this.value} origin={this.origin} p1={this.pins[0]} p2={this.pins[1]} speed={this._speed} key={'res_' + this.instanceName}></ResistorSymbol>;
     }
-
-    set speed(val: number) {
-        this._speed = val;
-        this.generateSymbol();
-    }
-
-    get speed() {
-        return this._speed;
-    }
 }
 
 export function ResistorSymbol(props: any) {
